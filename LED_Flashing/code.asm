@@ -1,8 +1,13 @@
-	list p=16F628 
+	list p=16F628A 
  
- 	include	"p16f628.inc"
+ 	include	"p16f628a.inc"
  	__config  _INTRC_OSC_NOCLKOUT & _LVP_OFF & _WDT_OFF & _PWRTE_ON & _BODEN_ON
  
+	CBLOCK	0x20
+		CounterA, CounterB,	CounterC
+	ENDC
+	
+
  	ORG	0x0000 
  
  	CLRF	PORTA		; clear porta 
@@ -22,5 +27,12 @@ LABEL	MOVLW	0xFF		; all high!
  	MOVWF	PORTA		; put it on the port 
  	MOVLW	0xFF		; same thing with portb 
  	MOVWF	PORTB 
+	CALL	delay1s
+ 	MOVLW	0x00		; same thing with portb 
+ 	MOVWF	PORTB 
+	CALL	delay1s	
  	GOTO	LABEL 
- 	END 
+
+	include	"../includes/delay1s.inc"
+
+	END

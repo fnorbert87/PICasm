@@ -1,8 +1,0 @@
-Fordítás
-
-gpasm  Asztal/v.asm 
-
-PICkit
-
-pk2cmd -?V      #version
-pk2cmd -P       #autodetect PIC
