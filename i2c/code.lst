@@ -1,0 +1,879 @@
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001         list p=12LF1822 
+                      00002  
+                      00003         include "p12lf1822.inc"
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ;  MPASM PIC12LF1822 processor include
+                      00005 ; 
+                      00006 ;  (c) Copyright 1999-2014 Microchip Technology, All rights reserved
+                      00007 ;==========================================================================
+                      00008 
+                      01054         LIST
+8007   3F84           00004         __config  _CONFIG1, 0x3F84
+8008   1613           00005         __config  _CONFIG2, 0x1613
+                      00006  
+                      00007         #define BANK0 0x000
+                      00008         #define BANK1 0x080
+                      00009         #define BANK2 0x100
+                      00010         #define BANK3 0x180
+                      00011         #define BANK4 0x200
+                      00012         #define BANK5 0x280
+                      00013         #define BANK6 0x300
+                      00014         #define BANK7 0x380
+                      00015 
+0000   0020           00016         BANKSEL BANK0
+                      00017 
+                      00018         CBLOCK  0x20
+  00000020            00019                 d1, d2, d3
+                      00020         ENDC
+                      00021 
+0000                  00022         ORG     0X0000
+                      00023 
+0000   0021           00024         BANKSEL BANK1
+                      00025 
+0001   30F0           00026         MOVLW   0XF0
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x80, register{0x19}.
+0002   0099           00027         MOVWF   OSCCON
+0003   3006           00028         MOVLW   b'00000110'
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x80, register{0xc}.
+0004   008C           00029         MOVWF   TRISA
+                      00030 
+0005   0023           00031         BANKSEL BANK3
+                      00032 
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x180, register{0xc}.
+0006   018C           00033         CLRF    ANSELA
+                      00034 
+                      00035 
+0007   0020           00036         BANKSEL BANK0
+                      00037 
+0008   018C           00038         CLRF    PORTA
+                      00039 
+0009   0022           00040         BANKSEL BANK2
+                      00041 
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x100, register{0xc}.
+000A   018C           00042         CLRF    LATA
+                      00043 
+                      00044         ;I2C init
+000B   0024           00045         BANKSEL BANK4
+000C   3028           00046         MOVLW   0X28
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x200, register{0x15}.
+000D   0095           00047         MOVWF   SSP1CON1
+000E   3000           00048         MOVLW   0X00
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x200, register{0x16}.
+000F   0096           00049         MOVWF   SSP1CON2
+0010   3013           00050         MOVLW   0X13    ;400Khz / 32Mhz
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x200, register{0x12}.
+0011   0092           00051         MOVWF   SSP1ADD
+0012   3000           00052         MOVLW   0X00
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x200, register{0x14}.
+0013   0094           00053         MOVWF   SSP1STAT
+                      00054 
+0014   0000           00055 MLOOP   NOP
+0015   0020           00056         BANKSEL BANK0
+0016   2041           00057         CALL    delay1s 
+0017   100C           00058         BCF     PORTA, 0
+0018   0000           00059         NOP
+0019   128C           00060         BCF     PORTA, 5
+001A   2041           00061         CALL    delay1s 
+                      00062         
+001B   2021           00063         CALL    I2CBEGIN
+                      00064 
+                      00065 
+001C   30D0           00066         MOVLW   0XD0
+001D   2024           00067         CALL    I2CWRITE
+001E   2027           00068         CALL    I2CACK
+                      00069 
+001F   2034           00070         CALL    I2CEND
+                      00071 
+0020   2814           00072         GOTO    MLOOP
+                      00073 
+                      00074 
+                      00075 ;****************** SUBRUTINS ********************
+                      00076 
+                      00077         ;I2C BEGIN
+0021   2037           00078 I2CBEGIN        CALL    I2CHOLD
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x200, register{0x16}.
+0022   1416           00079         BSF     SSP1CON2,SEN
+0023   0008           00080         RETURN
+                      00081 
+                      00082         ;I2C WRITE
+0024   2037           00083 I2CWRITE        CALL    I2CHOLD
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x200, register{0x11}.
+0025   0091           00084         MOVWF   SSP1BUF
+0026   0008           00085         RETURN
+                      00086 
+0027   2037           00087 I2CACK  CALL    I2CHOLD
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00088 
+0028   0024           00089         BANKSEL BANK4
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x200, register{0x16}.
+0029   1F16           00090         BTFSS   SSP1CON2, ACKSTAT
+002A   2830           00091         GOTO    GREEN
+002B   282C           00092         GOTO    RED
+002C   0000           00093 RED     NOP
+002D   0020           00094         BANKSEL BANK0
+002E   140C           00095         BSF     PORTA, RA0
+002F   2833           00096         GOTO    RET
+0030   0000           00097 GREEN   NOP
+0031   0020           00098         BANKSEL BANK0
+0032   168C           00099         BSF     PORTA, RA5
+0033   0008           00100 RET     RETURN
+                      00101 
+                      00102         ;I2C END
+0034   2037           00103 I2CEND  CALL    I2CHOLD
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x200, register{0x16}.
+0035   1516           00104         BSF     SSP1CON2,PEN
+0036   0008           00105         RETURN
+                      00106 
+                      00107         ;I2C HOLD
+0037   0000           00108 I2CHOLD NOP
+0038   0024           00109         BANKSEL BANK4
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x200, register{0x14}.
+0039   1914           00110 LOOP    BTFSC   SSP1STAT,2
+003A   2839           00111         GOTO    LOOP
+003B   1103           00112 LOOP2   BCF     STATUS, Z
+003C   301F           00113         MOVLW   B'00011111'
+Message[302]: Register in operand not in bank 0. Ensure that bank bits are correct. Bank_bits = 0x200, register{0x16}.
+003D   0516           00114         ANDWF   SSP1CON2,0
+003E   1D03           00115         BTFSS   STATUS, Z
+003F   283B           00116         GOTO    LOOP2
+0040   0008           00117         RETURN
+                      00118 
+                      00119         
+                      00120         include "../includes/delay1s.inc"
+0041   3047           00001 delay1s movlw   0x47
+0042   00A0           00002         movwf   d1
+0043   3071           00003         movlw   0x71
+0044   00A1           00004         movwf   d2
+0045   3012           00005         movlw   0x12
+0046   00A2           00006         movwf   d3
+0047   0BA0           00007 Delay_0 decfsz  d1, f
+0048   284A           00008         goto    $+2
+0049   0BA1           00009         decfsz  d2, f
+004A   284C           00010         goto    $+2
+004B   0BA2           00011         decfsz  d3, f
+004C   2847           00012         goto    Delay_0
+004D   284E           00013         goto    $+1
+004E   284F           00014         goto    $+1
+004F   2850           00015         goto    $+1
+0050   0008           00016         return
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00121 
+                      00122         END
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE  5
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+ABDEN                             00000000
+ABDOVF                            00000007
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACKTIM                            00000007
+ADCON0                            0000009D
+ADCON1                            0000009E
+ADCS0                             00000004
+ADCS1                             00000005
+ADCS2                             00000006
+ADDEN                             00000003
+ADFM                              00000007
+ADFVR0                            00000000
+ADFVR1                            00000001
+ADGO                              00000001
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADPREF0                           00000000
+ADPREF1                           00000001
+ADRES                             0000009B
+ADRESH                            0000009C
+ADRESL                            0000009B
+AHEN                              00000001
+AN0                               00000000
+AN1                               00000001
+AN2                               00000002
+AN3                               00000004
+ANSA0                             00000000
+ANSA1                             00000001
+ANSA2                             00000002
+ANSA4                             00000004
+ANSELA                            0000018C
+APFCON                            0000011D
+APFCON0                           0000011D
+BANK0                             0x000
+BANK1                             0x080
+BANK2                             0x100
+BANK3                             0x180
+BANK4                             0x200
+BANK5                             0x280
+BANK6                             0x300
+BANK7                             0x380
+BAUDCON                           0000019F
+BCL1IE                            00000003
+BCL1IF                            00000003
+BF                                00000000
+BOEN                              00000004
+BORCON                            00000116
+BORRDY                            00000000
+BRG16                             00000003
+BRGH                              00000002
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE  6
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+BSR                               00000008
+BSR0                              00000000
+BSR1                              00000001
+BSR2                              00000002
+BSR3                              00000003
+BSR4                              00000004
+BSR_SHAD                          00000FE6
+C                                 00000000
+C1HYS                             00000001
+C1IE                              00000005
+C1IF                              00000005
+C1IN0N                            00000001
+C1IN1N                            00000004
+C1INP                             00000000
+C1INTN                            00000006
+C1INTP                            00000007
+C1NCH0                            00000000
+C1OE                              00000005
+C1ON                              00000007
+C1OUT_CM1CON0                     00000006
+C1OUT_PORTA                       00000002
+C1PCH0                            00000004
+C1PCH1                            00000005
+C1POL                             00000004
+C1SP                              00000002
+C1SYNC                            00000000
+CCP1AS                            00000295
+CCP1AS0                           00000004
+CCP1AS1                           00000005
+CCP1AS2                           00000006
+CCP1ASE                           00000007
+CCP1CON                           00000293
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1SEL                           00000000
+CCPR1                             00000291
+CCPR1H                            00000292
+CCPR1L                            00000291
+CDAFVR0                           00000002
+CDAFVR1                           00000003
+CFGS                              00000006
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CHS4                              00000006
+CKE                               00000006
+CKP                               00000004
+CLKIN                             00000005
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE  7
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CLKOUT                            00000004
+CLKR                              00000004
+CLKRCON                           0000039A
+CLKRDC0                           00000003
+CLKRDC1                           00000004
+CLKRDIV0                          00000000
+CLKRDIV1                          00000001
+CLKRDIV2                          00000002
+CLKREN                            00000007
+CLKROE                            00000006
+CLKRSLR                           00000005
+CM1CON0                           00000111
+CM1CON1                           00000112
+CMOUT                             00000115
+CPS0                              00000000
+CPS1                              00000001
+CPS2                              00000002
+CPS3                              00000004
+CPSCH0                            00000000
+CPSCH1                            00000001
+CPSCON0                           0000001E
+CPSCON1                           0000001F
+CPSON                             00000007
+CPSOUT                            00000001
+CPSRM                             00000006
+CPSRNG0                           00000002
+CPSRNG1                           00000003
+CREN                              00000004
+CSRC                              00000007
+C_SHAD                            00000000
+DACCON0                           00000118
+DACCON1                           00000119
+DACEN                             00000007
+DACLPS                            00000006
+DACOE                             00000005
+DACOUT                            00000000
+DACPSS0                           00000002
+DACPSS1                           00000003
+DACR0                             00000000
+DACR1                             00000001
+DACR2                             00000002
+DACR3                             00000003
+DACR4                             00000004
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DC_SHAD                           00000001
+DHEN                              00000000
+D_NOT_A                           00000005
+Delay_0                           00000047
+ECCP1AS                           00000295
+EEADR                             00000191
+EEADRH                            00000192
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE  8
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+EEADRL                            00000191
+EECON1                            00000195
+EECON2                            00000196
+EEDAT                             00000193
+EEDATH                            00000194
+EEDATL                            00000193
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+F                                 00000001
+FERR                              00000002
+FLT0                              00000002
+FREE                              00000004
+FSR0                              00000004
+FSR0H                             00000005
+FSR0H_SHAD                        00000FE9
+FSR0L                             00000004
+FSR0L_SHAD                        00000FE8
+FSR1                              00000006
+FSR1H                             00000007
+FSR1H_SHAD                        00000FEB
+FSR1L                             00000006
+FSR1L_SHAD                        00000FEA
+FVRCON                            00000117
+FVREN                             00000007
+FVRRDY                            00000006
+GCEN                              00000007
+GIE                               00000007
+GO                                00000001
+GO_NOT_DONE                       00000001
+GREEN                             00000030
+HFIOFL                            00000003
+HFIOFR                            00000004
+HFIOFS                            00000000
+I2CACK                            00000027
+I2CBEGIN                          00000021
+I2CEND                            00000034
+I2CHOLD                           00000037
+I2CWRITE                          00000024
+INDF0                             00000000
+INDF1                             00000001
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IOCAF                             00000393
+IOCAF0                            00000000
+IOCAF1                            00000001
+IOCAF2                            00000002
+IOCAF3                            00000003
+IOCAF4                            00000004
+IOCAF5                            00000005
+IOCAN                             00000392
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE  9
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+IOCAN0                            00000000
+IOCAN1                            00000001
+IOCAN2                            00000002
+IOCAN3                            00000003
+IOCAN4                            00000004
+IOCAN5                            00000005
+IOCAP                             00000391
+IOCAP0                            00000000
+IOCAP1                            00000001
+IOCAP2                            00000002
+IOCAP3                            00000003
+IOCAP4                            00000004
+IOCAP5                            00000005
+IOCIE                             00000003
+IOCIF                             00000000
+IRCF0                             00000003
+IRCF1                             00000004
+IRCF2                             00000005
+IRCF3                             00000006
+LATA                              0000010C
+LATA0                             00000000
+LATA1                             00000001
+LATA2                             00000002
+LATA4                             00000004
+LATA5                             00000005
+LFIOFR                            00000001
+LOOP                              00000039
+LOOP2                             0000003B
+LWLO                              00000005
+MC1OUT                            00000000
+MDBIT                             00000000
+MDCARH                            0000039F
+MDCARL                            0000039E
+MDCH0                             00000000
+MDCH1                             00000001
+MDCH2                             00000002
+MDCH3                             00000003
+MDCHODIS                          00000007
+MDCHPOL                           00000006
+MDCHSYNC                          00000005
+MDCIN1                            00000002
+MDCIN2                            00000004
+MDCL0                             00000000
+MDCL1                             00000001
+MDCL2                             00000002
+MDCL3                             00000003
+MDCLODIS                          00000007
+MDCLPOL                           00000006
+MDCLSYNC                          00000005
+MDCON                             0000039C
+MDEN                              00000007
+MDMIN                             00000001
+MDMS0                             00000000
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE 10
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+MDMS1                             00000001
+MDMS2                             00000002
+MDMS3                             00000003
+MDMSODIS                          00000007
+MDOE                              00000006
+MDOPOL                            00000004
+MDOUT_MDCON                       00000003
+MDOUT_PORTA                       00000000
+MDSLR                             00000005
+MDSRC                             0000039D
+MFIOFR                            00000002
+MLOOP                             00000014
+NOT_BOR                           00000000
+NOT_DONE                          00000001
+NOT_MCLR                          00000003
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RI                            00000002
+NOT_RMCLR                         00000003
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_WPUEN                         00000007
+OERR                              00000001
+OPTION_REG                        00000095
+OSC1                              00000005
+OSC2                              00000004
+OSCCON                            00000099
+OSCSTAT                           0000009A
+OSCTUNE                           00000098
+OSFIE                             00000007
+OSFIF                             00000007
+OSTS                              00000005
+P                                 00000004
+P1BSEL                            00000001
+P1DC0                             00000000
+P1DC1                             00000001
+P1DC2                             00000002
+P1DC3                             00000003
+P1DC4                             00000004
+P1DC5                             00000005
+P1DC6                             00000006
+P1M0                              00000006
+P1M1                              00000007
+P1RSEN                            00000007
+PCIE                              00000006
+PCL                               00000002
+PCLATH                            0000000A
+PCLATH_SHAD                       00000FE7
+PCON                              00000096
+PEIE                              00000006
+PEN                               00000002
+PIE1                              00000091
+PIE2                              00000092
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE 11
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PIR1                              00000011
+PIR2                              00000012
+PLLR                              00000006
+PORTA                             0000000C
+PR2                               0000001B
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+PSS1AC0                           00000002
+PSS1AC1                           00000003
+PSS1BD0                           00000000
+PSS1BD1                           00000001
+PSTR1CON                          00000296
+PWM1CON                           00000294
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RCEN                              00000003
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             00000199
+RCSTA                             0000019D
+RD                                00000000
+RED                               0000002C
+RET                               00000033
+RSEN                              00000001
+RX9                               00000006
+RX9D                              00000000
+RXDTSEL                           00000007
+R_NOT_W                           00000002
+S                                 00000003
+SBCDE                             00000002
+SBOREN                            00000007
+SCIE                              00000005
+SCK                               00000001
+SCKP                              00000004
+SCL                               00000001
+SCS0                              00000000
+SCS1                              00000001
+SDA                               00000002
+SDAHT                             00000003
+SDI                               00000002
+SDO1SEL                           00000006
+SDOSEL                            00000006
+SEN                               00000000
+SENDB                             00000003
+SMP                               00000007
+SP1BRG                            0000019B
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE 12
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SP1BRGH                           0000019C
+SP1BRGL                           0000019B
+SPBRG                             0000019B
+SPBRGH                            0000019C
+SPBRGL                            0000019B
+SPEN                              00000007
+SPLLEN                            00000007
+SRCLK0                            00000004
+SRCLK1                            00000005
+SRCLK2                            00000006
+SRCON0                            0000011A
+SRCON1                            0000011B
+SREN                              00000005
+SRI                               00000001
+SRLEN                             00000007
+SRNQ                              00000005
+SRNQEN                            00000002
+SRPR                              00000000
+SRPS                              00000001
+SRQ                               00000002
+SRQEN                             00000003
+SRRC1E                            00000000
+SRRCKE                            00000002
+SRRPE                             00000003
+SRSC1E                            00000004
+SRSCKE                            00000006
+SRSPE                             00000007
+SS1SEL                            00000005
+SSP1ADD                           00000212
+SSP1BUF                           00000211
+SSP1CON1                          00000215
+SSP1CON2                          00000216
+SSP1CON3                          00000217
+SSP1IE                            00000003
+SSP1IF                            00000003
+SSP1MSK                           00000213
+SSP1STAT                          00000214
+SSPADD                            00000212
+SSPBUF                            00000211
+SSPCON                            00000215
+SSPCON1                           00000215
+SSPCON2                           00000216
+SSPCON3                           00000217
+SSPEN                             00000005
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPMSK                            00000213
+SSPOV                             00000006
+SSPSTAT                           00000214
+SSSEL                             00000005
+STATUS                            00000003
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+STATUS_SHAD                       00000FE4
+STKOVF                            00000007
+STKPTR                            00000FED
+STKUNF                            00000006
+STR1A                             00000000
+STR1B                             00000001
+STR1C                             00000002
+STR1D                             00000003
+STR1SYNC                          00000004
+SWDTEN                            00000000
+SYNC                              00000004
+T0CKI                             00000002
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T0XCS                             00000000
+T1CKI                             00000005
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000018
+T1GCON                            00000019
+T1GGO                             00000003
+T1GGO_NOT_DONE                    00000003
+T1GPOL                            00000006
+T1GSEL                            00000003
+T1GSPM                            00000004
+T1GSS0                            00000000
+T1GSS1                            00000001
+T1GTM                             00000005
+T1GVAL                            00000002
+T1OSCEN                           00000003
+T1OSCR                            00000007
+T1OSI                             00000005
+T1OSO                             00000004
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             0000001C
+T2OUTPS0                          00000003
+T2OUTPS1                          00000004
+T2OUTPS2                          00000005
+T2OUTPS3                          00000006
+TMR0                              00000015
+TMR0CS                            00000005
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0SE                            00000004
+TMR1                              00000016
+TMR1CS0                           00000006
+TMR1CS1                           00000007
+TMR1GE                            00000007
+TMR1GIE                           00000007
+TMR1GIF                           00000007
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE 14
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR1H                             00000017
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             00000016
+TMR1ON                            00000000
+TMR2                              0000001A
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOSH                              00000FEF
+TOSL                              00000FEE
+TRISA                             0000008C
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRMT                              00000001
+TSEN                              00000005
+TSRNG                             00000004
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TUN5                              00000005
+TX9                               00000006
+TX9D                              00000000
+TXCKSEL                           00000002
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             0000019A
+TXSTA                             0000019E
+UA                                00000001
+W                                 00000000
+WCOL                              00000007
+WDTCON                            00000097
+WDTPS0                            00000001
+WDTPS1                            00000002
+WDTPS2                            00000003
+WDTPS3                            00000004
+WDTPS4                            00000005
+WPUA                              0000020C
+WPUA0                             00000000
+WPUA1                             00000001
+WPUA2                             00000002
+WPUA3                             00000003
+WPUA4                             00000004
+WPUA5                             00000005
+WR                                00000001
+WREG                              00000009
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE 15
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+WREG_SHAD                         00000FE5
+WREN                              00000002
+WRERR                             00000003
+WUE                               00000001
+Z                                 00000002
+Z_SHAD                            00000002
+_BOREN_NSLEEP                     0000FDFF
+_BOREN_OFF                        0000F9FF
+_BOREN_ON                         0000FFFF
+_BOREN_SBODEN                     0000FBFF
+_BORV_19                          0000FFFF
+_BORV_HI                          0000FBFF
+_BORV_LO                          0000FFFF
+_CLKOUTEN_OFF                     0000FFFF
+_CLKOUTEN_ON                      0000F7FF
+_CONFIG1                          00008007
+_CONFIG2                          00008008
+_CPD_OFF                          0000FFFF
+_CPD_ON                           0000FEFF
+_CP_OFF                           0000FFFF
+_CP_ON                            0000FF7F
+_DEBUG_OFF                        0000FFFF
+_DEBUG_ON                         0000EFFF
+_DEVID1                           00008006
+_FCMEN_OFF                        0000DFFF
+_FCMEN_ON                         0000FFFF
+_FOSC_ECH                         0000FFFF
+_FOSC_ECL                         0000FFFD
+_FOSC_ECM                         0000FFFE
+_FOSC_EXTRC                       0000FFFB
+_FOSC_HS                          0000FFFA
+_FOSC_INTOSC                      0000FFFC
+_FOSC_LP                          0000FFF8
+_FOSC_XT                          0000FFF9
+_IDLOC0                           00008000
+_IDLOC1                           00008001
+_IDLOC2                           00008002
+_IDLOC3                           00008003
+_IESO_OFF                         0000EFFF
+_IESO_ON                          0000FFFF
+_LVP_OFF                          0000DFFF
+_LVP_ON                           0000FFFF
+_MCLRE_OFF                        0000FFBF
+_MCLRE_ON                         0000FFFF
+_PLLEN_OFF                        0000FEFF
+_PLLEN_ON                         0000FFFF
+_PWRTE_OFF                        0000FFFF
+_PWRTE_ON                         0000FFDF
+_STVREN_OFF                       0000FDFF
+_STVREN_ON                        0000FFFF
+_WDTE_NSLEEP                      0000FFF7
+_WDTE_OFF                         0000FFE7
+_WDTE_ON                          0000FFFF
+gpasm-1.4.0 #1107 (Jan  1 2021)      code.asm   1-5-2023  08:42:07          PAGE 16
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_WDTE_SWDTEN                      0000FFEF
+_WRT_ALL                          0000FFFC
+_WRT_BOOT                         0000FFFE
+_WRT_HALF                         0000FFFD
+_WRT_OFF                          0000FFFF
+__12LF1822                        00000001
+__CODE_END                        000007FF
+__CODE_START                      00000000
+__COMMON_RAM_END                  0000007F
+__COMMON_RAM_START                00000070
+__EEPROM_END                      0000F0FF
+__EEPROM_START                    0000F000
+__LINEAR_RAM_END                  0000206F
+__LINEAR_RAM_START                00002000
+__VECTOR_INT                      00000004
+__VECTOR_RESET                    00000000
+d1                                00000020
+d2                                00000021
+d3                                00000022
+delay1s                           00000041
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0040 : XXXXXXXXXXXXXXXX X--------------- ---------------- ----------------
+8000 : -------XX------- ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Words Used:    81
+Program Memory Words Free:  1967
+
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :    14 reported,     0 suppressed
+
+

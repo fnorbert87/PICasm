@@ -1,13 +1,16 @@
-delay1s	movlw 	D'6'
-	movwf 	CounterC
-	movlw 	D'24'
-	movwf 	CounterB
-	movlw 	D'167'
-	movwf 	CounterA
-loop 	decfsz 	CounterA,1
-	goto 	loop
-	decfsz 	CounterB,1
-	goto 	loop
-	decfsz 	CounterC,1
-	goto 	loop
+delay1s	movlw	0x47
+	movwf	d1
+	movlw	0x71
+	movwf	d2
+	movlw	0x12
+	movwf	d3
+Delay_0	decfsz	d1, f
+	goto	$+2
+	decfsz	d2, f
+	goto	$+2
+	decfsz	d3, f
+	goto	Delay_0
+	goto	$+1
+	goto	$+1
+	goto	$+1
 	return

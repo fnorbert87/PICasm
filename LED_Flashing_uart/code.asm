@@ -1,0 +1,56 @@
+	list p=12LF1822 
+ 
+ 	include	"p12lf1822.inc"
+ 	__config  _CONFIG1, 0x3F84
+	__config  _CONFIG2, 0x1613
+ 
+	#define BANK0 0x000
+	#define BANK1 0x080
+	#define BANK2 0x100
+	#define BANK3 0x180
+	#define BANK4 0x200
+	#define BANK5 0x280
+	#define BANK6 0x300
+	#define BANK7 0x380
+
+	CBLOCK	0x20
+		CounterA, CounterB,	CounterC
+	ENDC
+	
+
+ 	ORG	0x0000 
+	BANKSEL	BANK1
+ 	BCF	TRISA, 2
+	MOVLW	0XF0
+	MOVWF	OSCCON
+	
+
+	;eusart
+	BANKSEL	BANK3
+	MOVLW	0x40
+	MOVWF	SPBRGL
+	MOVLW	0X03
+	MOVWF	SPBRGH
+	BSF	RCSTA,SPEN
+	BCF	TXSTA,SYNC
+	BSF	TXSTA,TXEN
+	BSF	TXSTA,BRGH
+	BCF	TXSTA,TX9
+	BSF	BAUDCON,BRG16
+
+	BANKSEL	BANK0
+LABEL	BSF	PORTA, 2
+	BANKSEL	BANK3
+	MOVLW	'B'
+	MOVWF	TXREG
+	BANKSEL	BANK0
+	CALL	delay1s
+ 	BCF	PORTA ,2
+	CALL	delay1s
+ 	GOTO	LABEL 
+
+	include	"../includes/delay1s.inc"
+
+	END
+
+
